@@ -10,6 +10,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using DebtsAPI.Data;
+using Microsoft.EntityFrameworkCore;
+using DebtsAPI.Services;
 
 namespace DebtsAPI
 {
@@ -26,6 +29,8 @@ namespace DebtsAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddDbContext<DatabaseContext>(options =>options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddScoped<IDebtsService, DebtsService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
