@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using DebtsAPI.Models;
+using DebtsAPI.Services;
+using DebtsAPI.Dtos;
 
 namespace DebtsAPI.Controllers
 {
@@ -10,11 +13,31 @@ namespace DebtsAPI.Controllers
     [ApiController]
     public class DebtsController : ControllerBase
     {
-        // GET api/debts
-        [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
+        private readonly IDebtsService _debtsService;
+
+        public DebtsController(IDebtsService debtsService)
         {
-            return new string[] { "value1", "value2" };
+            _debtsService = debtsService;
+        }
+
+        [HttpGet]
+        public ActionResult GetAll()
+        {
+            return Ok(_debtsService.GetAll());
+        }
+
+        [HttpPost]
+        public ActionResult CreateDebt([FromBody] DebtDto debtDto)
+        {
+            try
+            {
+                Debt debt = _debtsService.CreateDebt(debtDto);
+                return Ok(debt);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
     }
 }
