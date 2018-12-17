@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DebtsAPI.Data;
 using DebtsAPI.Models;
 using DebtsAPI.Dtos;
+using AutoMapper;
 
 
 namespace DebtsAPI.Services
@@ -16,12 +17,14 @@ namespace DebtsAPI.Services
         Debt CreateDebt(DebtDto debt);
     }
 
-    public class DebtsService: IDebtsService
+    public class DebtsService : IDebtsService
     {
+        private readonly IMapper _mapper;
         private readonly DatabaseContext _context;
-        public DebtsService(DatabaseContext context)
+        public DebtsService(DatabaseContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public IEnumerable<Debt> GetAll()
@@ -31,8 +34,7 @@ namespace DebtsAPI.Services
 
         public Debt CreateDebt(DebtDto debtDto)
         {
-            Debt debt = new Debt { GiverId = debtDto.GiverId, TakerId = debtDto.TakerId, Sum = debtDto.Sum,Date = DateTimeOffset.Now };
-
+            Debt debt = _mapper.Map<Debt>(debtDto);
             _context.Debts.Add(debt);
             _context.SaveChanges();
             return debt;

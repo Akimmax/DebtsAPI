@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 using DebtsAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using DebtsAPI.Services;
+using AutoMapper;
 
 namespace DebtsAPI
 {
@@ -29,6 +30,7 @@ namespace DebtsAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddAutoMapper();
             services.AddDbContext<DatabaseContext>(options =>options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddScoped<IDebtsService, DebtsService>();
         }
