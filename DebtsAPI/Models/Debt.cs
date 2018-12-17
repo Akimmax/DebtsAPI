@@ -11,6 +11,7 @@ namespace DebtsAPI.Models
         public int GiverId { get; set; }
         public int TakerId { get; set; }
         public int Sum { get; set; }
+        public bool IsActive { get; set; }
         public DateTimeOffset Date { get; set; }
     }
 }
