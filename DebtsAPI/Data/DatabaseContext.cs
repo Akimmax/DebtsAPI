@@ -14,10 +14,12 @@ namespace DebtsAPI.Data
         }
 
         public DbSet<Debt> Debts { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Debt>().ToTable("Debts");
+            modelBuilder.Entity<User>().ToTable("Users");
         }
     }
 }

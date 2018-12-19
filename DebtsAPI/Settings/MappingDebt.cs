@@ -8,13 +8,16 @@ using DebtsAPI.Dtos;
 
 namespace DebtsAPI.Mappings
 {
-    public class DebtProfile:Profile
+    public class DebtProfile : Profile
     {
         public DebtProfile()
         {
-            CreateMap<DebtDto,Debt>()
-                .ForMember("IsActive", opt => opt.MapFrom(item=>true))
+            CreateMap<DebtDto, Debt>()
+                .ForMember("IsActive", opt => opt.MapFrom(item => true))
                 .ForMember("Date", opt => opt.MapFrom(item => DateTimeOffset.Now));
+
+            CreateMap<User, UserDto>();
+            CreateMap<UserDto, User>();
         }
     }
 }
