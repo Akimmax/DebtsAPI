@@ -28,10 +28,13 @@ namespace DebtsAPI.Controllers
         [HttpPost("authenticate")]
         public IActionResult Authenticate([FromBody]UserDto userDto)
         {
-            var authenticatedUser = _userService.Authenticate(userDto.Username, userDto.Password);
+            var authenticatedUser = _userService.Authenticate(userDto.Email, userDto.Password);
 
             if (authenticatedUser == null)
+            {
                 return BadRequest(new { message = "Username or password is incorrect" });
+            }
+                
 
             return Ok(authenticatedUser);
         }
@@ -45,9 +48,13 @@ namespace DebtsAPI.Controllers
                 _userService.Create(userDto);
                 return Ok();
             }
-            catch (AppException ex)
+            catch (UserException ex)
             {
                 return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
             }
         }
 
@@ -75,9 +82,13 @@ namespace DebtsAPI.Controllers
                 _userService.Update(userDto);
                 return Ok();
             }
-            catch (AppException ex)
+            catch (UserException ex)
             {
                 return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
             }
         }
 

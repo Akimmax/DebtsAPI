@@ -6,11 +6,11 @@ using System.Globalization;
 
 namespace DebtsAPI.CustomException
 {
-    public class AppException : Exception
+    public class UserException : Exception
     {
-        public AppException() : base() { }
+        public UserException() : base() { }
 
-        public AppException(string message) : base(message) { }
+        public UserException(string message) : base(message) { }
 
     }
 }

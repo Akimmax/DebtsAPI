@@ -42,16 +42,22 @@ namespace DebtsAPI.Services
         public UserDto Authenticate(string username, string password)
         {
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            {
                 return null;
+            }                
 
-            var user = _context.Users.SingleOrDefault(x => x.Username == username);
+            var user = _context.Users.SingleOrDefault(x => x.Email == username);
 
             if (user == null)
+            {
                 return null;
+            }
 
             // check if password is correct
             if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+            {
                 return null;
+            }                
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
@@ -61,7 +67,7 @@ namespace DebtsAPI.Services
                 {
                     new Claim(ClaimTypes.Name, user.Id.ToString())
                 }),
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddDays(30),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -88,12 +94,18 @@ namespace DebtsAPI.Services
         public User Create(UserDto userDto)
         {
             var user = _mapper.Map<User>(userDto);
+            user.IsActive = true;
+            user.IsVirtual = false;
 
             if (string.IsNullOrWhiteSpace(userDto.Password))
-                throw new AppException("Password is required");
+            {
+                throw new UserException("Password is required");
+            }
 
-            if (_context.Users.Any(x => x.Username == user.Username))
-                throw new AppException("Username \"" + user.Username + "\" is already taken");
+            if (_context.Users.Any(x => x.Email == user.Email))
+            {
+                throw new UserException("Username \"" + user.Email + "\" is already taken");
+            }                
 
             byte[] passwordHash, passwordSalt;
             CreatePasswordHash(userDto.Password, out passwordHash, out passwordSalt);
@@ -113,18 +125,25 @@ namespace DebtsAPI.Services
             var user = _context.Users.Find(userParam.Id);
 
             if (user == null)
-                throw new AppException("User not found");
+            {
+                throw new UserException("User not found");
+            }
+                
 
-            if (userParam.Username != user.Username)
+            if (userParam.Email != user.Email)
             {
                 //check if the new username is already taken
-                if (_context.Users.Any(x => x.Username == userParam.Username))
-                    throw new AppException("Username " + userParam.Username + " is already taken");
+                if (_context.Users.Any(x => x.Email == userParam.Email))
+                {
+                    throw new UserException("Username " + userParam.Email + " is already taken");
+                }
+                   
             }
 
-            user.FirstName = userParam.FirstName;
-            user.LastName = userParam.LastName;
-            user.Username = userParam.Username;
+            //if string null  remain old value
+            user.FirstName = userParam.FirstName ?? user.FirstName;
+            user.LastName = userParam.LastName ?? user.LastName;
+            user.Email = userParam.Email ?? user.Email;
 
             // update password if it was entered
             if (!string.IsNullOrWhiteSpace(userParam.Password))
@@ -143,6 +162,7 @@ namespace DebtsAPI.Services
         public void Delete(int id)
         {
             var user = _context.Users.Find(id);
+
             if (user != null)
             {
                 _context.Users.Remove(user);
@@ -152,8 +172,7 @@ namespace DebtsAPI.Services
 
         private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
-            if (password == null) throw new ArgumentNullException("password");
-            if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");
+            CheckPasswordValidity(password);
 
             using (var hmac = new System.Security.Cryptography.HMACSHA512())
             {
@@ -164,21 +183,46 @@ namespace DebtsAPI.Services
 
         private static bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
         {
-            if (password == null) throw new ArgumentNullException("password");
-            if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");
-            if (storedHash.Length != 64) throw new ArgumentException("Invalid length of password hash (64 bytes expected).", "passwordHash");
-            if (storedSalt.Length != 128) throw new ArgumentException("Invalid length of password salt (128 bytes expected).", "passwordHash");
+            CheckPasswordValidity(password);
+
+            if (storedHash.Length != 64)
+            {
+                throw new ArgumentException("Invalid length of password hash (64 bytes expected).", "passwordHash");
+            }
+
+            if (storedSalt.Length != 128)
+            {
+                throw new ArgumentException("Invalid length of password salt (128 bytes expected).", "passwordHash");
+            }            
 
             using (var hmac = new System.Security.Cryptography.HMACSHA512(storedSalt))
             {
                 var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+
                 for (int i = 0; i < computedHash.Length; i++)
                 {
-                    if (computedHash[i] != storedHash[i]) return false;
+                    if (computedHash[i] != storedHash[i])
+                    {
+                        return false;
+                    } 
                 }
             }
 
             return true;
+        }
+
+        private static void CheckPasswordValidity(string password)
+        {
+            if (password == null)
+            {
+                throw new ArgumentNullException("password");
+            }
+
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");
+            }               
+
         }
     }
 }
