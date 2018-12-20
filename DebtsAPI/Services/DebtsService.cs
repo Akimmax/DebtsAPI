@@ -35,8 +35,12 @@ namespace DebtsAPI.Services
         public Debt CreateDebt(DebtDto debtDto)
         {
             Debt debt = _mapper.Map<Debt>(debtDto);
+            debt.IsActive = true;
+            debt.Date = DateTimeOffset.Now;
+
             _context.Debts.Add(debt);
             _context.SaveChanges();
+
             return debt;
         }
     }
