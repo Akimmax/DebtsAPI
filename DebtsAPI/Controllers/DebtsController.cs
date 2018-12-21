@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using DebtsAPI.Models;
 using DebtsAPI.Services;
 using DebtsAPI.Dtos;
 
 namespace DebtsAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
+    [Route("api/[controller]")]
     public class DebtsController : ControllerBase
     {
         private readonly IDebtsService _debtsService;
