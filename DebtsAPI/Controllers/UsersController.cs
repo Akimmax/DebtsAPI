@@ -5,14 +5,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using DebtsAPI.CustomException;
+using DebtsAPI.Services.Exeptions;
 using DebtsAPI.Services;
 using DebtsAPI.Dtos;
 using DebtsAPI.Models;
 
 namespace DebtsAPI.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]    
     public class UsersController : ControllerBase
