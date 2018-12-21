@@ -6,12 +6,13 @@ using DebtsAPI.Settings;
 using DebtsAPI.Data;
 using AutoMapper;
 using DebtsAPI.Dtos;
-using DebtsAPI.CustomException;
+using DebtsAPI.Services.Exeptions;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Options;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using DebtsAPI.Services.Helpers;
 
 
 namespace DebtsAPI.Services
@@ -31,6 +32,7 @@ namespace DebtsAPI.Services
         private readonly IMapper _mapper;
         private readonly DatabaseContext _context;
         private readonly AppSettings _appSettings;
+
 
         public UserService(DatabaseContext context, IMapper mapper, IOptions<AppSettings> appSettings)
         {
@@ -52,9 +54,9 @@ namespace DebtsAPI.Services
             {
                 return null;
             }
-
+            
             // check if password is correct
-            if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+            if (!AuthHelper.VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
             {
                 return null;
             }                
@@ -108,7 +110,7 @@ namespace DebtsAPI.Services
             }                
 
             byte[] passwordHash, passwordSalt;
-            CreatePasswordHash(userDto.Password, out passwordHash, out passwordSalt);
+            AuthHelper.CreatePasswordHash(userDto.Password, out passwordHash, out passwordSalt);
 
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
@@ -149,7 +151,7 @@ namespace DebtsAPI.Services
             if (!string.IsNullOrWhiteSpace(userParam.Password))
             {
                 byte[] passwordHash, passwordSalt;
-                CreatePasswordHash(userParam.Password, out passwordHash, out passwordSalt);
+                AuthHelper.CreatePasswordHash(userParam.Password, out passwordHash, out passwordSalt);
 
                 user.PasswordHash = passwordHash;
                 user.PasswordSalt = passwordSalt;
@@ -168,61 +170,6 @@ namespace DebtsAPI.Services
                 _context.Users.Remove(user);
                 _context.SaveChanges();
             }
-        }
-
-        private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
-        {
-            CheckPasswordValidity(password);
-
-            using (var hmac = new System.Security.Cryptography.HMACSHA512())
-            {
-                passwordSalt = hmac.Key;
-                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-            }
-        }
-
-        private static bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
-        {
-            CheckPasswordValidity(password);
-
-            if (storedHash.Length != 64)
-            {
-                throw new ArgumentException("Invalid length of password hash (64 bytes expected).", "passwordHash");
-            }
-
-            if (storedSalt.Length != 128)
-            {
-                throw new ArgumentException("Invalid length of password salt (128 bytes expected).", "passwordHash");
-            }            
-
-            using (var hmac = new System.Security.Cryptography.HMACSHA512(storedSalt))
-            {
-                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-
-                for (int i = 0; i < computedHash.Length; i++)
-                {
-                    if (computedHash[i] != storedHash[i])
-                    {
-                        return false;
-                    } 
-                }
-            }
-
-            return true;
-        }
-
-        private static void CheckPasswordValidity(string password)
-        {
-            if (password == null)
-            {
-                throw new ArgumentNullException("password");
-            }
-
-            if (string.IsNullOrWhiteSpace(password))
-            {
-                throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");
-            }               
-
         }
     }
 }

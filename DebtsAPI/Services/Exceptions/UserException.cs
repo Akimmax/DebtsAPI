@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Globalization;
 
-namespace DebtsAPI.CustomException
+namespace DebtsAPI.Services.Exeptions
 {
     public class UserException : Exception
     {
