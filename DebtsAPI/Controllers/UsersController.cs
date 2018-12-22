@@ -26,27 +26,33 @@ namespace DebtsAPI.Controllers
 
         [AllowAnonymous]
         [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody]UserDto userDto)
+        public IActionResult Authenticate([FromBody]UserAuthenticateDto userDto)
         {
             var authenticatedUser = _userService.Authenticate(userDto.Email, userDto.Password);
 
             if (authenticatedUser == null)
             {
                 return BadRequest(new { message = "Username or password is incorrect" });
-            }
-                
+            }                
 
             return Ok(authenticatedUser);
         }
 
         [AllowAnonymous]
         [HttpPost("register")]
-        public IActionResult Register([FromBody]UserDto userDto)
+        public IActionResult Register([FromBody]UserAuthenticateDto userDto)
         { 
             try
-            {                
-                _userService.Create(userDto);
-                return Ok();
+            {
+                if (ModelState.IsValid)
+                {
+                    _userService.Create(userDto);
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest(ModelState);
+                }
             }
             catch (UserException ex)
             {
@@ -73,7 +79,7 @@ namespace DebtsAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody]UserDto userDto)
+        public IActionResult Update(int id, [FromBody]UserEditDto userDto)
         {            
             userDto.Id = id;
 
