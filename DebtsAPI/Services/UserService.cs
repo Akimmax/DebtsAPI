@@ -19,11 +19,11 @@ namespace DebtsAPI.Services
 {
     public interface IUserService
     {
-        UserDto Authenticate(string username, string password);
+        UserAuthenticateResponseDto Authenticate(string username, string password);
         IEnumerable<UserDto> GetAll();
         UserDto GetById(int id);
-        User Create(UserDto userDto);
-        void Update(UserDto userDto);
+        void Create(UserAuthenticateDto userDto);
+        void Update(UserEditDto userDto);
         void Delete(int id);
     }
 
@@ -41,7 +41,7 @@ namespace DebtsAPI.Services
             _appSettings = appSettings.Value;
         }
 
-        public UserDto Authenticate(string username, string password)
+        public UserAuthenticateResponseDto Authenticate(string username, string password)
         {
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
@@ -75,7 +75,7 @@ namespace DebtsAPI.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
 
-            var userDto = _mapper.Map<UserDto>(user);
+            var userDto = _mapper.Map<UserAuthenticateResponseDto>(user);
             userDto.Token = tokenString;
 
             return userDto;
@@ -83,17 +83,19 @@ namespace DebtsAPI.Services
 
         public IEnumerable<UserDto> GetAll()
         {
-            return _mapper.Map<IList<UserDto>>(_context.Users);
+            var users = _context.Users.Where(u => u.IsActive == true);
+
+            return _mapper.Map<IList<UserDto>>(users);
         }
 
         public UserDto GetById(int id)
         {
-            var user = _context.Users.Find(id);
+            var user = _context.Users.FirstOrDefault(u=>u.IsActive == true && u.Id == id);
 
             return _mapper.Map<UserDto>(user);
         }
 
-        public User Create(UserDto userDto)
+        public void Create(UserAuthenticateDto userDto)
         {
             var user = _mapper.Map<User>(userDto);
             user.IsActive = true;
@@ -118,10 +120,9 @@ namespace DebtsAPI.Services
             _context.Users.Add(user);
             _context.SaveChanges();
 
-            return user;
         }
 
-        public void Update(UserDto userParam)
+        public void Update(UserEditDto userParam)
         {
 
             var user = _context.Users.Find(userParam.Id);
@@ -164,10 +165,10 @@ namespace DebtsAPI.Services
         public void Delete(int id)
         {
             var user = _context.Users.Find(id);
-
+            
             if (user != null)
             {
-                _context.Users.Remove(user);
+                user.IsActive = false;
                 _context.SaveChanges();
             }
         }

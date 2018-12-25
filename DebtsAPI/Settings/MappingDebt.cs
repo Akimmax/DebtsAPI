@@ -16,6 +16,11 @@ namespace DebtsAPI.Mappings
             
             CreateMap<User, UserDto>();
             CreateMap<UserDto, User>();
+            
+            CreateMap<User, UserAuthenticateResponseDto>();
+
+            CreateMap<UserAuthenticateDto, User>();
+
         }
     }
 }
