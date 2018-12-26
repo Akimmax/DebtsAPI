@@ -26,13 +26,13 @@ namespace DebtsAPI.Data
 
             modelBuilder.Entity<UserContacts>()
             .HasOne(pt => pt.User)
-            .WithMany(p => p.UserContacts)
+            .WithMany(p => p.SentInvitations)
             .HasForeignKey(pt => pt.UserId)
             .OnDelete(DeleteBehavior.Restrict); ;
 
             modelBuilder.Entity<UserContacts>()
             .HasOne(pt => pt.Contact)
-            .WithMany(t => t.ContactUsers)
+            .WithMany(p => p.ReceivedInvitations)
             .HasForeignKey(pt => pt.ContactId)
             .OnDelete(DeleteBehavior.Restrict);
 
