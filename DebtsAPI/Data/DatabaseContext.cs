@@ -9,12 +9,18 @@ namespace DebtsAPI.Data
 {
     public class DatabaseContext : DbContext
     {
+        public DatabaseContext()
+        {
+
+        }
+
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
         {
         }
 
-        public DbSet<Debt> Debts { get; set; }
-        public DbSet<User> Users { get; set; }
+        public virtual DbSet<Debt> Debts { get; set; }
+        public virtual DbSet<User> Users { get; set; }
+
         public DbSet<UserContacts> UserContacts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

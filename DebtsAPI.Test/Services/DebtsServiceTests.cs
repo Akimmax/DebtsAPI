@@ -76,8 +76,8 @@ namespace DebtsAPI.Tests.Services
             var actual = service.CreateDebt(
                 new DebtDto()
                 {
-                    GiverId = myDebt.GiverId,
-                    TakerId = myDebt.TakerId,
+                    GiverId = (int)myDebt.GiverId,
+                    TakerId = (int)myDebt.TakerId,
                     Sum = myDebt.Sum
                 }
             );
