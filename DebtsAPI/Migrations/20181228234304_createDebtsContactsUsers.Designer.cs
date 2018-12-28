@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DebtsAPI.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20181226225536_UpdateUserContacts")]
-    partial class UpdateUserContacts
+    [Migration("20181228234304_createDebtsContactsUsers")]
+    partial class createDebtsContactsUsers
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -76,8 +76,6 @@ namespace DebtsAPI.Migrations
                     b.Property<int>("UserId");
 
                     b.Property<int>("ContactId");
-
-                    b.Property<int>("Id");
 
                     b.Property<bool>("IsRead");
 

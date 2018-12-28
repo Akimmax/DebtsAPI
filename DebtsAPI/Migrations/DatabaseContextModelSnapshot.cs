@@ -75,8 +75,6 @@ namespace DebtsAPI.Migrations
 
                     b.Property<int>("ContactId");
 
-                    b.Property<int>("Id");
-
                     b.Property<bool>("IsRead");
 
                     b.HasKey("UserId", "ContactId");
