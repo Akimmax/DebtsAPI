@@ -4,7 +4,7 @@ using DebtsAPI.Data;
 using DebtsAPI.Models;
 using DebtsAPI.Dtos;
 using AutoMapper;
-
+using System.Linq;
 
 namespace DebtsAPI.Services
 {
@@ -19,6 +19,7 @@ namespace DebtsAPI.Services
     {
         private readonly IMapper _mapper;
         private readonly DatabaseContext _context;
+
         public DebtsService(DatabaseContext context, IMapper mapper)
         {
             _context = context;
@@ -27,16 +28,18 @@ namespace DebtsAPI.Services
 
         public IEnumerable<Debt> GetAll()
         {
-            return _context.Debts;
+            return _context.Debts.ToList();
         }
 
         public Debt CreateDebt(DebtDto debtDto)
         {
             Debt debt = _mapper.Map<Debt>(debtDto);
+
             debt.IsActive = true;
             debt.Date = DateTimeOffset.Now;
 
             _context.Debts.Add(debt);
+
             _context.SaveChanges();
 
             return debt;
