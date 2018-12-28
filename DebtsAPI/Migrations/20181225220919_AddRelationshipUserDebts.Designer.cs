@@ -4,18 +4,20 @@ using DebtsAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DebtsAPI.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20181225220919_AddRelationshipUserDebts")]
+    partial class AddRelationshipUserDebts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.4-rtm-31024")
+                .HasAnnotation("ProductVersion", "2.1.3-rtm-32065")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -75,10 +77,6 @@ namespace DebtsAPI.Migrations
 
                     b.Property<int>("ContactId");
 
-                    b.Property<int>("Id");
-
-                    b.Property<bool>("IsRead");
-
                     b.HasKey("UserId", "ContactId");
 
                     b.HasIndex("ContactId");
@@ -102,12 +100,12 @@ namespace DebtsAPI.Migrations
             modelBuilder.Entity("DebtsAPI.Models.UserContacts", b =>
                 {
                     b.HasOne("DebtsAPI.Models.User", "Contact")
-                        .WithMany("ReceivedInvitations")
+                        .WithMany("ContactUsers")
                         .HasForeignKey("ContactId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("DebtsAPI.Models.User", "User")
-                        .WithMany("SentInvitations")
+                        .WithMany("UserContacts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
