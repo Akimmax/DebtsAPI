@@ -10,7 +10,6 @@ using DebtsAPI.Models;
 using DebtsAPI.Services;
 using DebtsAPI.Dtos;
 using DebtsAPI.Services.Exceptions;
-using DebtsAPI.Services.Claims;
 
 namespace DebtsAPI.Controllers
 {
@@ -47,7 +46,6 @@ namespace DebtsAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        [ClaimRequirement(ClaimTypes.NameIdentifier, "id", ClaimValueSources.FROM_PATH)]
         public IActionResult Delete(int id)
         {
             try
@@ -59,7 +57,10 @@ namespace DebtsAPI.Controllers
             {
                 return NotFound();
             }
-
+            catch (ForbiddenException)
+            {
+                return Forbid();
+            }
         }
     }
 }

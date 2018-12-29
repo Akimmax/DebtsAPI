@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 using DebtsAPI.Data;
 using DebtsAPI.Models;
@@ -21,12 +23,15 @@ namespace DebtsAPI.Services
 
     public class DebtsService : IDebtsService
     {
-        private readonly IMapper _mapper;
         private readonly DatabaseContext _context;
-        public DebtsService(DatabaseContext context, IMapper mapper)
+        private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public DebtsService(DatabaseContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public IEnumerable<Debt> GetAll()
@@ -48,16 +53,21 @@ namespace DebtsAPI.Services
         public void Delete(int id)
         {
             var debt = _context.Debts.Find(id);
+            var userId = Convert.ToInt32(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
-            if (debt != null)
-            {
-                _context.Debts.Remove(debt);
-                _context.SaveChanges();
-            }
-            else
+
+            if (debt == null)
             {
                 throw new NotFoundException();
+
             }
+            if (userId != debt.GiverId && userId != debt.TakerId)
+            {
+                throw new ForbiddenException();
+            }
+
+            _context.Debts.Remove(debt);
+            _context.SaveChanges();
         }
     }
 }
