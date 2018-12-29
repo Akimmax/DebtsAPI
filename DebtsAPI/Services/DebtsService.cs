@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using AutoMapper;
+
 using DebtsAPI.Data;
 using DebtsAPI.Models;
 using DebtsAPI.Dtos;
-using AutoMapper;
+using DebtsAPI.Services.Exceptions;
+
 
 
 namespace DebtsAPI.Services
@@ -13,6 +16,7 @@ namespace DebtsAPI.Services
     {
         IEnumerable<Debt> GetAll();
         Debt CreateDebt(DebtDto debt);
+        void Delete(int id);
     }
 
     public class DebtsService : IDebtsService
@@ -40,6 +44,20 @@ namespace DebtsAPI.Services
             _context.SaveChanges();
 
             return debt;
+        }
+        public void Delete(int id)
+        {
+            var debt = _context.Debts.Find(id);
+
+            if (debt != null)
+            {
+                _context.Debts.Remove(debt);
+                _context.SaveChanges();
+            }
+            else
+            {
+                throw new NotFoundException();
+            }
         }
     }
 }
