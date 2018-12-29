@@ -4,9 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+
 using DebtsAPI.Models;
 using DebtsAPI.Services;
 using DebtsAPI.Dtos;
+using DebtsAPI.Services.Exceptions;
 
 namespace DebtsAPI.Controllers
 {
@@ -39,6 +42,24 @@ namespace DebtsAPI.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            try
+            {
+                _debtsService.Delete(id);
+                return Ok();
+            }
+            catch (NotFoundException)
+            {
+                return NotFound();
+            }
+            catch (ForbiddenException)
+            {
+                return Forbid();
             }
         }
     }
