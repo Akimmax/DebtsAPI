@@ -67,6 +67,7 @@ namespace DebtsAPI
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<IDebtsService, DebtsService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IContactsService, ContactsService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
