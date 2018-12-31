@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using DebtsAPI.Models;
 using DebtsAPI.Dtos;
+using DebtsAPI.Dtos.Debts;
 
 namespace DebtsAPI.Mappings
 {
@@ -12,13 +13,10 @@ namespace DebtsAPI.Mappings
     {
         public DebtProfile()
         {
-            CreateMap<DebtDto, Debt>();
-            
+            CreateMap<DebtInboxDto, Debt>();
             CreateMap<User, UserDto>();
             CreateMap<UserDto, User>();
-            
             CreateMap<User, UserAuthenticateResponseDto>();
-
             CreateMap<UserAuthenticateDto, User>();
 
         }

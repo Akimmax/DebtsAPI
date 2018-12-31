@@ -6,7 +6,7 @@ using DebtsAPI.Settings;
 using DebtsAPI.Data;
 using AutoMapper;
 using DebtsAPI.Dtos;
-using DebtsAPI.Services.Exeptions;
+using DebtsAPI.Services.Exceptions;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Options;
 using System.Text;
@@ -43,11 +43,6 @@ namespace DebtsAPI.Services
 
         public UserAuthenticateResponseDto Authenticate(string username, string password)
         {
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
-            {
-                return null;
-            }                
-
             var user = _context.Users.SingleOrDefault(x => x.Email == username);
 
             if (user == null)
@@ -100,11 +95,6 @@ namespace DebtsAPI.Services
             var user = _mapper.Map<User>(userDto);
             user.IsActive = true;
             user.IsVirtual = false;
-
-            if (string.IsNullOrWhiteSpace(userDto.Password))
-            {
-                throw new UserException("Password is required");
-            }
 
             if (_context.Users.Any(x => x.Email == user.Email))
             {
