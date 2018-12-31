@@ -65,6 +65,7 @@ namespace DebtsAPI
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<IDebtsService, DebtsService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IContactsService, ContactsService>();
             services.AddScoped<DebtDtoMapper>();
         }
 

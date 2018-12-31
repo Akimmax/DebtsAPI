@@ -10,6 +10,7 @@ using DebtsAPI.Models;
 using AutoMapper;
 using DebtsAPI.Mappings;
 using DebtsAPI.Dtos;
+using Microsoft.AspNetCore.Http;
 
 namespace DebtsAPI.Tests.Services
 {
@@ -48,7 +49,7 @@ namespace DebtsAPI.Tests.Services
 
             var mockContext = new Mock<DatabaseContext>();
             mockContext.Setup(c => c.Debts).Returns(mockSet.Object);
-            var service = new DebtsService(mockContext.Object, iMapper);
+            var service = new DebtsService(mockContext.Object, iMapper, new HttpContextAccessor());
 
             var actual = service.GetAll();
 
@@ -71,7 +72,7 @@ namespace DebtsAPI.Tests.Services
 
             var mockContext = new Mock<DatabaseContext>();
             mockContext.Setup(c => c.Debts.Add(myDebt));
-            var service = new DebtsService(mockContext.Object, iMapper);
+            var service = new DebtsService(mockContext.Object, iMapper, new HttpContextAccessor());
 
             var actual = service.CreateDebt(
                 new DebtDto()
