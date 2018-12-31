@@ -27,45 +27,33 @@ namespace DebtsAPI.Controllers
             _contactService = contactService;
         }
 
-        [HttpGet]
-        public IActionResult GetAll()
-        {
-            var contacts = _contactService.GetAll().ToList();
-
-            return Ok(contacts);
-        }
-
         [HttpPost]
         [Route("create/{secondUserId}")]
-        public IActionResult MakeContactsForEachOther(int secondUserId)
+        public IActionResult Create(int secondUserId)
         {
             try
             {
                 _contactService.AddToContacts(secondUserId);
                 return Ok();
             }
-            catch (UserException ex)
+            catch (ContactNotFoundException ex)
             {
                 return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
+            }           
         }
 
         [HttpPost]
         [Route("invite/{receiverId}")]
-        public IActionResult SendInvitationToContacts(int receiverId)
+        public IActionResult Invite(int receiverId)
         {
             try
             {
-                _contactService.AddRalationship(receiverId);
+                _contactService.AddRelationship(receiverId);
                 return Ok();
             }
-            catch (NotFoundException)
+            catch (ContactNotFoundException ex)
             {
-                return NotFound();
+                return BadRequest(new { message = ex.Message });
             }
         }
 
@@ -75,32 +63,17 @@ namespace DebtsAPI.Controllers
         {
             try
             {
-                _contactService.AddRalationship(inviterId);
+                _contactService.AddRelationship(inviterId);
                 return Ok();
             }
-            catch (NotFoundException)
+            catch (ContactNotFoundException ex)
             {
-                return NotFound();
+                return BadRequest(new { message = ex.Message });
             }
         }
 
         [HttpPut]
-        [Route("seen/{senderId}")]
-        public IActionResult MarkAsSeen(int senderId)
-        {
-            try
-            {
-                _contactService.MarkAsSeen(senderId);
-                return Ok();
-            }
-            catch (NotFoundException)
-            {
-                return NotFound();
-            }
-        }
-
-        [HttpPut]
-        [Route("seenmany")]
+        [Route("seen")]
         public IActionResult MarkAsSeenMany([FromBody]List<int> sendersId)
         {           
             try
@@ -108,15 +81,14 @@ namespace DebtsAPI.Controllers
                 _contactService.MarkAsSeen(sendersId);
                 return Ok();
             }
-            catch (NotFoundException)
+            catch (ContactNotFoundException ex)
             {
-                return NotFound();
+                return BadRequest(new { message = ex.Message });
             }
         }
 
         [HttpGet]
-        [Route("forcurrentuser")]
-        public IActionResult GetAllForCurrentUser()
+        public IActionResult GetAll()
         {
             var users = _contactService.GetAllForCurrentUser().ToList();
 
@@ -131,9 +103,9 @@ namespace DebtsAPI.Controllers
                 _contactService.Delete(id);
                 return Ok();
             }
-            catch (NotFoundException)
+            catch (ContactNotFoundException ex)
             {
-                return NotFound();
+                return BadRequest(new { message = ex.Message });
             }
             catch (ForbiddenException)
             {

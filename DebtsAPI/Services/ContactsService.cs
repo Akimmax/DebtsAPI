@@ -23,11 +23,9 @@ namespace DebtsAPI.Services
 {
     public interface IContactsService
     {
-        void AddRalationship(int id);
-        void AddToContacts(int secondUserId);
-        void MarkAsSeen(int inviterId);
+        void AddRelationship(int id);
+        void AddToContacts(int secondUserId);        
 
-        IEnumerable<UserContacts> GetAll();
         IEnumerable<UserDto> GetAllForCurrentUser();
         void Delete(int secondUserId);
 
@@ -49,7 +47,7 @@ namespace DebtsAPI.Services
         }
 
 
-        public void AddRalationship(int secondUserId)
+        public void AddRelationship(int secondUserId)
         {
             var firstUserId = Convert.ToInt32(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
@@ -58,7 +56,7 @@ namespace DebtsAPI.Services
 
             if (firstUser == null || secondUser == null)
             {
-                throw new NotFoundException();
+                throw new ContactNotFoundException();
             }
 
             _context.UserContacts.Add(new UserContacts { UserId = firstUser.Id, ContactId = secondUser.Id });
@@ -75,7 +73,7 @@ namespace DebtsAPI.Services
 
             if (firstUser == null || secondUser == null)
             {
-                throw new NotFoundException();
+                throw new ContactNotFoundException();
             }
 
             _context.UserContacts.Add(new UserContacts { UserId = firstUser.Id, ContactId = secondUser.Id });
@@ -83,31 +81,7 @@ namespace DebtsAPI.Services
 
             _context.SaveChanges();
         }
-
-        public void MarkAsSeen(int inviterId)
-        {
-            var receiverId = Convert.ToInt32(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-
-            var contact = _context.UserContacts.FirstOrDefault(c => c.UserId == inviterId && c.ContactId == receiverId);
-
-            if (contact == null )
-            {
-                throw new NotFoundException();
-            }
-
-            contact.IsRead = true;
-            _context.UserContacts.Update(contact);           
-
-            _context.SaveChanges();
-        }
-
-        public IEnumerable<UserContacts> GetAll()
-        {
-            var contacts = _context.UserContacts;
-
-            return contacts;
-        }
-
+       
         public void MarkAsSeen(IEnumerable<int> seenId)
         {
             var receiverId = Convert.ToInt32(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
@@ -118,7 +92,7 @@ namespace DebtsAPI.Services
 
             if (seenInvations == null || !seenInvations.Any() )
             {
-                throw new NotFoundException();
+                throw new ContactNotFoundException();
             }
 
             foreach (var invation in seenInvations)
@@ -152,24 +126,22 @@ namespace DebtsAPI.Services
         {
             var currentUserId = Convert.ToInt32(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
-            var contact = _context.UserContacts.FirstOrDefault(c => c.UserId == currentUserId && c.ContactId == secondUserId);
-         
-            if (contact == null)
+            var invitation = _context.UserContacts.FirstOrDefault(c => c.UserId == currentUserId && c.ContactId == secondUserId);
+            var acception = _context.UserContacts.FirstOrDefault(c => c.UserId == secondUserId && c.ContactId == currentUserId);
+
+            if (invitation == null || acception == null)
             {
-                throw new NotFoundException();
+                throw new ContactNotFoundException();
             }
-            if (contact.UserId != currentUserId)
+            if (invitation.UserId != currentUserId || acception.ContactId != currentUserId )
             {
                 throw new ForbiddenException();
             }
 
-            _context.UserContacts.Remove(contact);
+            _context.UserContacts.Remove(invitation);
+            _context.UserContacts.Remove(acception);
             _context.SaveChanges();
 
         }
-
-
-
-
     }
 }
