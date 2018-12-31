@@ -1,23 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using AutoMapper;
-using Microsoft.AspNetCore.Http;
+using System.Linq;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 using DebtsAPI.Data;
 using DebtsAPI.Models;
-using DebtsAPI.Dtos;
+using DebtsAPI.Dtos.Debts;
 using DebtsAPI.Services.Exceptions;
-using AutoMapper;
-using System.Linq;
 
 namespace DebtsAPI.Services
 {
 
     public interface IDebtsService
     {
-        IEnumerable<Debt> GetAll();
-        Debt CreateDebt(DebtDto debt);
+        IEnumerable<DebtDetailResponseDto> GetAll(DebtFilterDto debtFilterDto);
+        void CreateDebt(DebtInboxDto debt);
         void Delete(int id);
     }
 
@@ -26,31 +26,67 @@ namespace DebtsAPI.Services
         private readonly DatabaseContext _context;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly DebtDtoMapper _debtDtoMapper;
 
-        public DebtsService(DatabaseContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        public DebtsService(DatabaseContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor, DebtDtoMapper debtDtoMapper)
         {
             _context = context;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
+            _debtDtoMapper = debtDtoMapper;
         }
 
-        public IEnumerable<Debt> GetAll()
+        public IEnumerable<DebtDetailResponseDto> GetAll(DebtFilterDto debtFilterDto)
         {
-            return _context.Debts.ToList();
+           
+            var userId = Convert.ToInt32(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            var unfilteredDebts = _context.Debts
+                .Where(debt => debt.GiverId == userId || debt.TakerId == userId);
+
+            switch (debtFilterDto.RoleInDebt)
+            {
+                case Constants.Debts.UserRole.GIVER:
+                    unfilteredDebts = unfilteredDebts
+                        .Where(debt => debt.GiverId == userId);
+                    break;
+                case Constants.Debts.UserRole.TAKER:
+                    unfilteredDebts = unfilteredDebts
+                        .Where(debt => debt.TakerId == userId);
+                    break;
+                default:
+                    unfilteredDebts = unfilteredDebts
+                        .Where(debt => debt.GiverId == userId || debt.TakerId == userId);
+                    break;
+            }
+
+            var userDebts = unfilteredDebts
+                .Include(debt => debt.Giver)
+                .Include(debt => debt.Taker)
+                .Select(debt => _debtDtoMapper.MapToDebtDetailResponseDto(debt));
+
+            return userDebts;
         }
 
-        public Debt CreateDebt(DebtDto debtDto)
+        public void CreateDebt(DebtInboxDto debtDto)
         {
+            var userId = Convert.ToInt32(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            bool isAccessAllow = userId == debtDto.GiverId || userId == debtDto.TakerId;
+
+            if (!isAccessAllow)
+            {
+                throw new ForbiddenException();
+            }
+
+
             Debt debt = _mapper.Map<Debt>(debtDto);
 
             debt.IsActive = true;
             debt.Date = DateTimeOffset.Now;
 
             _context.Debts.Add(debt);
-
             _context.SaveChanges();
-
-            return debt;
         }
         public void Delete(int id)
         {
@@ -63,7 +99,10 @@ namespace DebtsAPI.Services
                 throw new NotFoundException();
 
             }
-            if (userId != debt.GiverId && userId != debt.TakerId)
+
+            bool isAccessAllow = userId == debt.GiverId || userId == debt.TakerId;
+
+            if (!isAccessAllow)
             {
                 throw new ForbiddenException();
             }

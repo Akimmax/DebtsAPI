@@ -1,24 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using DebtsAPI.Data;
 using Microsoft.EntityFrameworkCore;
-using DebtsAPI.Services;
-using AutoMapper;
-using DebtsAPI.Settings;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
+using AutoMapper;
+
+using DebtsAPI.Settings;
+using DebtsAPI.Services;
+using DebtsAPI.Data;
+using DebtsAPI.Dtos.Debts;
 
 namespace DebtsAPI
 {
@@ -68,6 +66,7 @@ namespace DebtsAPI
             services.AddScoped<IDebtsService, DebtsService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IContactsService, ContactsService>();
+            services.AddScoped<DebtDtoMapper>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

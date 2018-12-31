@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 
 using DebtsAPI.Models;
 using DebtsAPI.Services;
-using DebtsAPI.Dtos;
+using DebtsAPI.Dtos.Debts;
 using DebtsAPI.Services.Exceptions;
+using DebtsAPI.Services.Helpers;
 
 namespace DebtsAPI.Controllers
 {
@@ -26,22 +23,22 @@ namespace DebtsAPI.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetAll()
+        public IActionResult GetAll([FromQuery] DebtFilterDto debtFilterDto)
         {
-            return Ok(_debtsService.GetAll());
+            return Ok(_debtsService.GetAll(debtFilterDto));
         }
 
         [HttpPost]
-        public ActionResult CreateDebt([FromBody] DebtDto debtDto)
+        public IActionResult CreateDebt([FromBody] DebtInboxDto debtDto)
         {
             try
             {
-                Debt debt = _debtsService.CreateDebt(debtDto);
-                return Ok(debt);
+                _debtsService.CreateDebt(debtDto);
+                return Ok();
             }
-            catch (Exception ex)
+            catch (ForbiddenException)
             {
-                return BadRequest(ex);
+                return Forbid();
             }
         }
 

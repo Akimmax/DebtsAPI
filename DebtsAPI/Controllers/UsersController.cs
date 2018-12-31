@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using DebtsAPI.Services.Exeptions;
+using DebtsAPI.Services.Exceptions;
 using DebtsAPI.Services;
 using DebtsAPI.Dtos;
 using DebtsAPI.Models;
@@ -44,15 +44,8 @@ namespace DebtsAPI.Controllers
         { 
             try
             {
-                if (ModelState.IsValid)
-                {
-                    _userService.Create(userDto);
-                    return Ok();
-                }
-                else
-                {
-                    return BadRequest(ModelState);
-                }
+                _userService.Create(userDto);
+                return Ok();
             }
             catch (UserException ex)
             {

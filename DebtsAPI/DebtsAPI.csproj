@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Dtos\ValidationAttributes\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
