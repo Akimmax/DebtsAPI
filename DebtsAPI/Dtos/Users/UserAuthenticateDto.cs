@@ -9,10 +9,6 @@ namespace DebtsAPI.Dtos
 {
     public class UserAuthenticateDto
     {
-        public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-
         [Required]
         [ValidEmail(ErrorMessage = "Email is required and must be properly formatted.")]
         public string Email { get; set; }

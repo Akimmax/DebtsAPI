@@ -74,7 +74,7 @@ namespace DebtsAPI.Controllers
 
         [HttpPut]
         [Route("seen")]
-        public IActionResult MarkAsSeenMany([FromBody]List<int> sendersId)
+        public IActionResult MarkAsSeenMany([FromBody]List<UserContactsDto> sendersId)
         {           
             try
             {
