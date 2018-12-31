@@ -20,13 +20,11 @@ namespace DebtsAPI.Services
 {
     public interface IContactsService
     {
-        void AddRelationship(int id);
-        void AddToContacts(int secondUserId);        
-
         IEnumerable<UserDto> GetAllForCurrentUser();
+        void AddRelationship(int id);
+        void AddToContacts(int secondUserId); 
+        void MarkAsSeen(IEnumerable<UserContactsDto> seen);
         void Delete(int secondUserId);
-
-        void MarkAsSeen(IEnumerable<int> seen);
     }
 
     public class ContactsService : IContactsService
@@ -79,13 +77,13 @@ namespace DebtsAPI.Services
             _context.SaveChanges();
         }
        
-        public void MarkAsSeen(IEnumerable<int> seenId)
+        public void MarkAsSeen(IEnumerable<UserContactsDto> seenId)
         {
             var receiverId = Convert.ToInt32(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
             var invations = _context.UserContacts.Where(c => c.ContactId == receiverId);
 
-            var seenInvations = invations.Where(u => seenId.Any(a => a == u.UserId));//select request which wos seen
+            var seenInvations = invations.Where(u => seenId.Any(a => a.UserId == u.UserId));//select request which was seen
 
             if (seenInvations == null || !seenInvations.Any() )
             {
