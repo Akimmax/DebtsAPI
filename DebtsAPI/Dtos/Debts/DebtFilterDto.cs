@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace DebtsAPI.Dtos.Debts
+﻿namespace DebtsAPI.Dtos.Debts
 {
     public class DebtFilterDto
     {
+        /// <summary>
+        /// Options:
+        ///
+        ///     ["Giver", "Taker"]
+        /// </summary>
         public string RoleInDebt { get; set; }
     }
 }

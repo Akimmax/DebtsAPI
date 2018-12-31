@@ -6,7 +6,7 @@ using DebtsAPI.Settings;
 using DebtsAPI.Data;
 using AutoMapper;
 using DebtsAPI.Dtos;
-using DebtsAPI.Services.Exeptions;
+using DebtsAPI.Services.Exceptions;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Options;
 using System.Text;
@@ -15,9 +15,6 @@ using System.Security.Claims;
 using DebtsAPI.Services.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-
-
-using DebtsAPI.Services.Exceptions;
 
 namespace DebtsAPI.Services
 {
