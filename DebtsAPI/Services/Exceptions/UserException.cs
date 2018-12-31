@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DebtsAPI.Services.Exeptions
+namespace DebtsAPI.Services.Exceptions
 {
     public class UserException : Exception
     {
