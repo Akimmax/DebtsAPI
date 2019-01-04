@@ -9,5 +9,7 @@ namespace DebtsAPI.Dtos.Debts
         public UserDto Taker { get; set; }
         public int Sum { get; set; }
         public DateTimeOffset Date { get; set; }
+        public DateTimeOffset Deadline { get; set; }
+        public string Description { get; set; }
     }
 }
