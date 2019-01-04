@@ -51,11 +51,42 @@ namespace DebtsAPI.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex);
+                return BadRequest();
             }
         }
+
+        [HttpPost("create")]
+        public IActionResult CreateVirtual([FromBody] UserDto userDto){
+            try
+            {
+                UserDto user = _userService.CreateVirtual(userDto);
+                return Ok(user);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+     
+        }
+
+        [HttpPut]
+        [Route("connecttoreal/{virtualUserId}")]
+        public IActionResult ConnectToReal(int virtualUserId, [FromBody] RealUserMarkerDto realUserMarkerDto)
+        {
+            try
+            {
+                _userService.ConnectToReal(virtualUserId, realUserMarkerDto);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
 
         [HttpGet]
         public IActionResult GetAll()

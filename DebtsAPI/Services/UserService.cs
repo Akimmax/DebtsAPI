@@ -23,6 +23,8 @@ namespace DebtsAPI.Services
         IEnumerable<UserDto> GetAll();
         UserDto GetById(int id);
         void Create(UserAuthenticateDto userDto);
+        void ConnectToReal(int virtualUserId, RealUserMarkerDto realUserMarkerDto);
+        UserDto CreateVirtual(UserDto userDto);
         void Update(UserEditDto userDto);
         void Delete(int id);
     }
@@ -108,6 +110,35 @@ namespace DebtsAPI.Services
             user.PasswordSalt = passwordSalt;
 
             _context.Users.Add(user);
+            _context.SaveChanges();
+
+        }
+
+        public UserDto CreateVirtual(UserDto userDto)
+        {
+            var user = _mapper.Map<User>(userDto);
+            user.IsActive = true;
+            user.IsVirtual = true;
+            _context.Users.Add(user);
+            _context.SaveChanges();
+            return _mapper.Map<UserDto>(user);
+        }
+
+        public void ConnectToReal(int virtualUserId, RealUserMarkerDto realUserMarkerDto)
+        {
+            var virtualUser = _context.Users.Find(virtualUserId);
+            var realUser = _context.Users.FirstOrDefault(u=>u.Email == realUserMarkerDto.Email);
+            _context.Debts
+                .Where(d => d.GiverId == virtualUserId).ToList()
+                .ForEach(d => d.GiverId = realUser.Id);
+            _context.Debts
+                .Where(d => d.TakerId == virtualUserId).ToList()
+                .ForEach(d => d.TakerId = realUser.Id);
+            _context.UserContacts
+                .Where(c => c.UserId == virtualUserId || c.ContactId == virtualUserId).ToList()
+                .ForEach(c => _context.UserContacts.Remove(c));
+
+            _context.Users.Remove(virtualUser);
             _context.SaveChanges();
 
         }

@@ -26,6 +26,13 @@ namespace DebtsAPI.Controllers
             _contactService = contactService;
         }
 
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            var users = _contactService.GetAllForCurrentUser();
+            return Ok(users);
+        }
+
         [HttpPost]
         [Route("create/{secondUserId}")]
         public IActionResult Create(int secondUserId)
@@ -84,14 +91,6 @@ namespace DebtsAPI.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
-        }
-
-        [HttpGet]
-        public IActionResult GetAll()
-        {
-            var users = _contactService.GetAllForCurrentUser().ToList();
-
-            return Ok(users);
         }
 
         [HttpDelete("{id}")]
