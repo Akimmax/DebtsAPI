@@ -19,6 +19,7 @@ namespace DebtsAPI.Services
         IEnumerable<DebtDetailResponseDto> GetAll(DebtFilterDto debtFilterDto);
         void CreateDebt(DebtInboxDto debt);
         void Delete(int id);
+        void Update(DebtEditDto debtDto);
     }
 
     public class DebtsService : IDebtsService
@@ -108,6 +109,31 @@ namespace DebtsAPI.Services
             }
 
             _context.Debts.Remove(debt);
+            _context.SaveChanges();
+        }
+
+        public void Update(DebtEditDto debtDto)
+        {
+           var debt = _context.Debts.Find(debtDto.Id);
+          
+            var userId = Convert.ToInt32(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            if (debt == null)
+            {
+                throw new NotFoundException();
+            }
+
+            bool isAccessAllow = userId == debt.GiverId || userId == debt.TakerId;
+
+            if (!isAccessAllow)
+            {
+                throw new ForbiddenException();
+            }
+
+            debt.Sum = debtDto.Sum;
+            debt.Deadline = debtDto.Deadline;
+            debt.Description = debtDto.Description;
+
             _context.SaveChanges();
         }
     }

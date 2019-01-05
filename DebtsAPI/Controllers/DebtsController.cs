@@ -62,5 +62,23 @@ namespace DebtsAPI.Controllers
                 return Forbid();
             }
         }
+
+        [HttpPut]
+        public IActionResult EditDebt([FromBody] DebtEditDto debtDto)
+        {
+            try
+            {                
+                _debtsService.Update(debtDto);
+                return Ok();
+            }
+            catch (NotFoundException)
+            {
+                return NotFound();
+            }
+            catch (ForbiddenException)
+            {
+                return Forbid();
+            }
+        }
     }
 }

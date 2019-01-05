@@ -1,12 +1,13 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace DebtsAPI.Dtos.Debts
 {
-    public class DebtDetailResponseDto
+    public class DebtEditDto
     {
         public int Id { get; set; }
-        public UserDto Giver { get; set; }
-        public UserDto Taker { get; set; }
+
+        [Range(1, int.MaxValue, ErrorMessage = "Sum should be positive")]
         public int Sum { get; set; }
         public DateTimeOffset Date { get; set; }
         public DateTimeOffset Deadline { get; set; }
