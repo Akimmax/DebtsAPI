@@ -14,6 +14,7 @@ namespace DebtsAPI.Mappings
         public DebtProfile()
         {
             CreateMap<DebtInboxDto, Debt>();
+            CreateMap<DebtEditDto, Debt>();
             CreateMap<User, UserDto>();
             CreateMap<UserDto, User>();
             CreateMap<User, UserAuthenticateResponseDto>();

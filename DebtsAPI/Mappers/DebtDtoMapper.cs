@@ -22,6 +22,8 @@ namespace DebtsAPI.Dtos.Debts
                 Taker = _mapper.Map<UserDto>(debt.Taker),
                 Sum = debt.Sum,
                 Date = debt.Date,
+                Deadline = debt.Deadline,
+                Description = debt.Description
             };
         }
     }

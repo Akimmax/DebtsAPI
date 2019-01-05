@@ -18,5 +18,7 @@ namespace DebtsAPI.Models
         public int Sum { get; set; }
         public bool IsActive { get; set; }
         public DateTimeOffset Date { get; set; }
+        public DateTimeOffset Deadline { get; set; }
+        public string Description { get; set; }
     }
 }
