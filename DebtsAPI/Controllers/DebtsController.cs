@@ -63,11 +63,9 @@ namespace DebtsAPI.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public IActionResult EditDebt(int id, [FromBody] DebtEditDto debtDto)
+        [HttpPut]
+        public IActionResult EditDebt([FromBody] DebtEditDto debtDto)
         {
-            debtDto.Id = id;
-
             try
             {                
                 _debtsService.Update(debtDto);

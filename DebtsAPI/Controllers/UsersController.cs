@@ -71,11 +71,9 @@ namespace DebtsAPI.Controllers
             return Ok(user);
         }
 
-        [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody]UserEditDto userDto)
-        {            
-            userDto.Id = id;
-
+        [HttpPut]
+        public IActionResult Update([FromBody]UserEditDto userDto)
+        {
             try
             {
                 _userService.Update(userDto);
