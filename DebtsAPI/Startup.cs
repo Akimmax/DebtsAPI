@@ -12,11 +12,14 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using AutoMapper;
+using Swashbuckle.AspNetCore.Swagger;
 
 using DebtsAPI.Settings;
 using DebtsAPI.Services;
 using DebtsAPI.Data;
 using DebtsAPI.Dtos.Debts;
+using System.Reflection;
+using System.IO;
 
 namespace DebtsAPI
 {
@@ -65,7 +68,16 @@ namespace DebtsAPI
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<IDebtsService, DebtsService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IContactsService, ContactsService>();
             services.AddScoped<DebtDtoMapper>();
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "Debts API", Version = "v1" });
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -90,7 +102,11 @@ namespace DebtsAPI
                 .AllowAnyHeader()
                 .AllowCredentials());
 
-
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Debts API V1");
+            });
         }
     }
 }

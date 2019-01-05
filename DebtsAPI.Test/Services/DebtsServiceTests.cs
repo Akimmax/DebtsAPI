@@ -60,8 +60,8 @@ namespace DebtsAPI.Tests.Services
             mockSet.As<IQueryable<Debt>>().Setup(m => m.GetEnumerator()).Returns(debts.GetEnumerator());
 
             var mockContext = new Mock<DatabaseContext>();
-            mockContext.Setup(c => c.Debts).Returns(mockSet.Object);            
-
+            mockContext.Setup(c => c.Debts).Returns(mockSet.Object);   
+            
             var service = new DebtsService(mockContext.Object, iMapper, mockAccessor.Object, new DebtDtoMapper(iMapper));
             var noFilter = new DebtFilterDto { RoleInDebt = null };
 

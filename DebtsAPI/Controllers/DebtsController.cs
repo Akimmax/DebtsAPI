@@ -1,18 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 
-using DebtsAPI.Models;
 using DebtsAPI.Services;
 using DebtsAPI.Dtos.Debts;
 using DebtsAPI.Services.Exceptions;
-using DebtsAPI.Services.Helpers;
 
 namespace DebtsAPI.Controllers
 {
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(401)]
     public class DebtsController : ControllerBase
     {
         private readonly IDebtsService _debtsService;
@@ -29,6 +30,7 @@ namespace DebtsAPI.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(403)]
         public IActionResult CreateDebt([FromBody] DebtInboxDto debtDto)
         {
             try
@@ -43,6 +45,7 @@ namespace DebtsAPI.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(403)]
         public IActionResult Delete(int id)
         {
             try
