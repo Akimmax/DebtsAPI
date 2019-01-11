@@ -70,6 +70,7 @@ namespace DebtsAPI
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IContactsService, ContactsService>();
             services.AddScoped<IStatisticService, StatisticService>();
+            services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<DebtDtoMapper>();
 
             services.AddSwaggerGen(c =>

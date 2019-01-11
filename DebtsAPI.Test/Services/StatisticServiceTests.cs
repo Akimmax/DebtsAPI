@@ -32,7 +32,7 @@ namespace DebtsAPI.Tests.Services
         }
 
         [Fact]
-        public void Should_Get_All()
+        public void Should_Get_Statistic()
         {
             IQueryable<Debt> debts = new List<Debt>
             {

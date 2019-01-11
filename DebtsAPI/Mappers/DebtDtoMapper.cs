@@ -26,5 +26,21 @@ namespace DebtsAPI.Dtos.Debts
                 Description = debt.Description
             };
         }
+
+        public DebtDetailPaymentsResponseDto MapToDebtDetailPaymentsResponseDto(Debt debt)
+        {
+            return new DebtDetailPaymentsResponseDto
+            {
+                Id = debt.Id,
+                Giver = _mapper.Map<UserDto>(debt.Giver),
+                Taker = _mapper.Map<UserDto>(debt.Taker),
+                Sum = debt.Sum,
+                Date = debt.Date,
+                Deadline = debt.Deadline,
+                Description = debt.Description,
+                IsRepaid = debt.IsRepaid,
+                Payments =  _mapper.Map<List<PaymentResponseDto>>(debt.Payments)                            
+        };
+        }
     }
 }

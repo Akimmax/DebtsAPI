@@ -60,9 +60,10 @@ namespace DebtsAPI.Tests.Services
             mockSet.As<IQueryable<Debt>>().Setup(m => m.GetEnumerator()).Returns(debts.GetEnumerator());
 
             var mockContext = new Mock<DatabaseContext>();
-            mockContext.Setup(c => c.Debts).Returns(mockSet.Object);   
-            
-            var service = new DebtsService(mockContext.Object, iMapper, mockAccessor.Object, new DebtDtoMapper(iMapper));
+            mockContext.Setup(c => c.Debts).Returns(mockSet.Object);
+
+            var servicePayment = new PaymentService(mockContext.Object, iMapper, mockAccessor.Object);
+            var service = new DebtsService(mockContext.Object, iMapper, mockAccessor.Object, new DebtDtoMapper(iMapper), servicePayment);
             var noFilter = new DebtFilterDto { RoleInDebt = null };
 
             var actual = service.GetAll(noFilter);
@@ -86,7 +87,8 @@ namespace DebtsAPI.Tests.Services
             var mockContext = new Mock<DatabaseContext>();
             mockContext.Setup(c => c.Debts.Add(myDebt));
 
-            var service = new DebtsService(mockContext.Object, iMapper, mockAccessor.Object, new DebtDtoMapper(iMapper));
+            var servicePayment = new PaymentService(mockContext.Object, iMapper, mockAccessor.Object);
+            var service = new DebtsService(mockContext.Object, iMapper, mockAccessor.Object, new DebtDtoMapper(iMapper), servicePayment);
 
             service.CreateDebt(
                  new DebtInboxDto()
@@ -102,7 +104,7 @@ namespace DebtsAPI.Tests.Services
                 t.Sum == myDebt.Sum
                 && t.TakerId == myDebt.TakerId
                 && t.GiverId == myDebt.GiverId
-                && t.IsActive == true
+                && t.IsRepaid == false
                 && t.Date.Date == DateTime.Now.Date
                 && t.Deadline == t.Deadline
                 && t.Description == t.Description

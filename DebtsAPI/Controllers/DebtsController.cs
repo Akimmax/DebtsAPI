@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using DebtsAPI.Services;
 using DebtsAPI.Dtos.Debts;
 using DebtsAPI.Services.Exceptions;
+using DebtsAPI.Models;
 
 namespace DebtsAPI.Controllers
 {
@@ -64,12 +65,52 @@ namespace DebtsAPI.Controllers
         }
 
         [HttpPut]
+        [ProducesResponseType(403)]
         public IActionResult EditDebt([FromBody] DebtEditDto debtDto)
         {
             try
             {                
                 _debtsService.Update(debtDto);
                 return Ok();
+            }
+            catch (NotFoundException)
+            {
+                return NotFound();
+            }
+            catch (ForbiddenException)
+            {
+                return Forbid();
+            }
+        }
+
+        [HttpPut]
+        [Route("repay")]
+        [ProducesResponseType(403)]
+        public IActionResult  Repay([FromBody] PaymentInboxDto paymentDto)
+        {
+            try
+            {                
+                _debtsService.Repay(paymentDto);
+                return Ok();
+            }
+            catch (NotFoundException)
+            {
+                return NotFound();
+            }
+            catch (ForbiddenException)
+            {
+                return Forbid();
+            }
+        }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(403)]
+        public IActionResult GetById(int id)
+        {   
+            try
+            {
+                var debt = _debtsService.GetById(id);
+                return Ok(debt);
             }
             catch (NotFoundException)
             {

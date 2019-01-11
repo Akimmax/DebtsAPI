@@ -20,21 +20,26 @@ namespace DebtsAPI.Services
         void CreateDebt(DebtInboxDto debt);
         void Delete(int id);
         void Update(DebtEditDto debtDto);
+        DebtDetailPaymentsResponseDto GetById(int id);
+        Debt Repay(PaymentInboxDto paymentDto);
     }
 
     public class DebtsService : IDebtsService
     {
         private readonly DatabaseContext _context;
         private readonly IMapper _mapper;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHttpContextAccessor _httpContextAccessor;        
         private readonly DebtDtoMapper _debtDtoMapper;
+        private readonly IPaymentService _paymentService;
 
-        public DebtsService(DatabaseContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor, DebtDtoMapper debtDtoMapper)
+        public DebtsService(DatabaseContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor, DebtDtoMapper debtDtoMapper, IPaymentService paymentService)
         {
             _context = context;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _debtDtoMapper = debtDtoMapper;
+            _paymentService = paymentService;
+
         }
 
         public IEnumerable<DebtDetailResponseDto> GetAll(DebtFilterDto debtFilterDto)
@@ -83,7 +88,7 @@ namespace DebtsAPI.Services
 
             Debt debt = _mapper.Map<Debt>(debtDto);
 
-            debt.IsActive = true;
+            debt.IsRepaid = false;
             debt.Date = DateTimeOffset.Now;
 
             _context.Debts.Add(debt);
@@ -114,8 +119,7 @@ namespace DebtsAPI.Services
 
         public void Update(DebtEditDto debtDto)
         {
-           var debt = _context.Debts.Find(debtDto.Id);
-          
+           var debt = _context.Debts.Include(t => t.Payments).FirstOrDefault(p => p.Id == debtDto.Id);
             var userId = Convert.ToInt32(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
             if (debt == null)
@@ -130,11 +134,68 @@ namespace DebtsAPI.Services
                 throw new ForbiddenException();
             }
 
+            if ((debt.Sum != debtDto.Sum) && (debtDto.Sum < debt.Payments.Sum(p => p.Amount)))
+            {
+                debt.IsRepaid = true;
+            }
+
             debt.Sum = debtDto.Sum;
             debt.Deadline = debtDto.Deadline;
             debt.Description = debtDto.Description;
 
             _context.SaveChanges();
+        }
+
+        public DebtDetailPaymentsResponseDto GetById(int id)
+        {
+            var debt = _context.Debts
+                .Include(d => d.Giver)
+                .Include(d => d.Taker)
+                .Include(d => d.Payments)
+                .FirstOrDefault(p => p.Id == id);
+
+            var userId = Convert.ToInt32(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            if (debt == null)
+            {
+                throw new NotFoundException();
+            }
+
+            bool isAccessAllow = userId == debt.GiverId || userId == debt.TakerId;
+
+            if (!isAccessAllow)
+            {
+                throw new ForbiddenException();
+            }          
+
+            var debtDto = _debtDtoMapper.MapToDebtDetailPaymentsResponseDto(debt);
+
+            return debtDto;
+        }
+
+        public Debt Repay(PaymentInboxDto paymentDto)
+        {
+            var debt = _context.Debts.Include(t => t.Payments).FirstOrDefault(p => p.Id == paymentDto.DebtId);
+            var userId = Convert.ToInt32(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            if (debt == null)
+            {
+                throw new NotFoundException();
+            }
+
+            bool isAccessAllow = userId == debt.GiverId || userId == debt.TakerId;
+
+            if (!isAccessAllow)
+            {
+                throw new ForbiddenException();
+            }
+
+            Payment payment = _mapper.Map<Payment>(paymentDto);
+
+            var repaid = _paymentService.PaymentOperations(debt, payment, true);
+
+            _context.SaveChanges();
+            return repaid;
         }
     }
 }
