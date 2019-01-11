@@ -1,12 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace DebtsAPI.Models
 {
     public class User
     {
+        public User()
+        {
+            SentInvitations = new List<UserContacts>();
+            ReceivedInvitations = new List<UserContacts>();
+
+            GivenDebts = new List<Debt>();
+            TakenDebts = new List<Debt>();
+        }
+
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -15,16 +21,6 @@ namespace DebtsAPI.Models
         public bool IsVirtual { get; set; }
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }
-
-        public User()
-        {
-
-            SentInvitations = new List<UserContacts>();
-            ReceivedInvitations = new List<UserContacts>();
-
-            GivenDebts = new List<Debt>();
-            TakenDebts = new List<Debt>();
-        }
 
         public virtual ICollection<UserContacts> SentInvitations { get; set; }
         public virtual ICollection<UserContacts> ReceivedInvitations { get; set; }

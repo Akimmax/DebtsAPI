@@ -20,6 +20,7 @@ namespace DebtsAPI.Data
 
         public virtual DbSet<Debt> Debts { get; set; }
         public virtual DbSet<User> Users { get; set; }
+        public DbSet<Payment> Payments { get; set; }
 
         public DbSet<UserContacts> UserContacts { get; set; }
 
@@ -27,6 +28,7 @@ namespace DebtsAPI.Data
         {
             modelBuilder.Entity<Debt>().ToTable("Debts");
             modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<Payment>().ToTable("Payments");
 
             modelBuilder.Entity<UserContacts>().HasKey(r => new { r.UserId, r.ContactId });
 
@@ -34,7 +36,7 @@ namespace DebtsAPI.Data
             .HasOne(pt => pt.User)
             .WithMany(p => p.SentInvitations)
             .HasForeignKey(pt => pt.UserId)
-            .OnDelete(DeleteBehavior.Restrict); ;
+            .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<UserContacts>()
             .HasOne(pt => pt.Contact)
@@ -52,6 +54,12 @@ namespace DebtsAPI.Data
             .HasOne(s => s.Taker)
             .WithMany(g => g.TakenDebts)
             .HasForeignKey(s => s.TakerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Payment>()
+            .HasOne(s => s.Debt)
+            .WithMany(g => g.Payments)
+            .HasForeignKey(s => s.DebtId)
             .OnDelete(DeleteBehavior.Restrict);
 
         }
